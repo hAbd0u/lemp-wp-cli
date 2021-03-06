@@ -210,4 +210,44 @@
         $command->execute();
     }
 
+
+
+    /**
+     * Check whether docker and docker-compose are installed or not
+     * 
+     * @return  bool        true on success, false on failure
+     */
+    function is_docker_dcompose_installed() 
+    {
+        $command = new Command();
+        $command->setCommand('docker -v');
+        $command->execute();
+        $docker = $command->getOutput();
+
+        $command->setCommand('docker-compose -v');
+        $command->execute();
+        $docker_compose = $command->getOutput();
+
+        if(preg_match('/Docker version/', $docker) === false || preg_match('/docker-compose version/', $docker_compose) === false)
+            return false;
+
+        return true;
+    }
+
+
+
+    /**
+     * Check whether is valid or not
+     * 
+     * @return  bool        true on success, false on failure
+     */
+    function is_valid_url($url)
+    {
+        $pattern = '/^(http(s)?:\/\/)?(www.)?([a-zA-Z0-9])+([\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,5}(:[0-9]{1,5})?(\/[^\s]*)?$/';
+        if(preg_match($pattern, $url) === false)
+            return false;
+
+        return true;
+    }
+
  ?>
