@@ -244,10 +244,10 @@
     function is_valid_url($url)
     {
         $pattern = '/^(http(s)?:\/\/)?(www.)?([a-zA-Z0-9])+([\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,5}(:[0-9]{1,5})?(\/[^\s]*)?$/';
-        if(preg_match($pattern, $url) === false)
-            return false;
+        if(preg_match($pattern, $url) === 1)
+            return true;
 
-        return true;
+        return false;
     }
 
  ?>
