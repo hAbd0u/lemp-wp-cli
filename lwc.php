@@ -8,6 +8,9 @@
     * file that was distributed with this source code.
     */
 
+    require_once 'vendor/autoload.php';
+
+    use mikehaertl\shellcommand\Command;
 
 
 
@@ -178,6 +181,33 @@
             echo 'Exiting the script from line: ' . __LINE__ . PHP_EOL;
             return 0;
         }
+    }
+
+
+
+    /**
+     * Uninstall docker and docker-compose on Ubuntu system
+     * 
+     */
+    function uninstall_docker_dcompose() 
+    {
+        echo 'Uninstalling docker and docker compose' . PHP_EOL;
+        echo '=====================================================' . PHP_EOL;
+
+        $command = new Command();
+        $command->setCommand('sudo rm -f /usr/share/keyrings/docker-archive-keyring.gpg');
+        $command->execute();
+
+        $command->setCommand('sudo apt-get purge -y docker-ce docker-ce-cli containerd.io');
+        $command->execute();
+        $result = $command->getOutput();
+        echo $result . PHP_EOL;
+
+        $command->setCommand('sudo rm -rf /var/lib/docker && sudo rm -rf /var/lib/containerd');
+        $command->execute();
+
+        $command->setCommand('sudo rm -f docker-compose && sudo rm -f /usr/local/bin/docker-compose');
+        $command->execute();
     }
 
  ?>
