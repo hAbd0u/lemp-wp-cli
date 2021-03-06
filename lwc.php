@@ -228,7 +228,7 @@
         $command->execute();
         $docker_compose = $command->getOutput();
 
-        if(preg_match('/Docker version/', $docker) === false || preg_match('/docker-compose version/', $docker_compose) === false)
+        if(preg_match('/Docker version/', $docker) != 1 || preg_match('/docker-compose version/', $docker_compose) != 1)
             return false;
 
         return true;
