@@ -8,7 +8,7 @@
     * file that was distributed with this source code.
     */
 
-    require_once __DIR__ . 'vendor/autoload.php';
+    require_once __DIR__ . '/vendor/autoload.php';
 
     use mikehaertl\shellcommand\Command;
 
@@ -248,6 +248,35 @@
             return true;
 
         return false;
+    }
+
+
+
+    /**
+     * Get all current active listenning ports
+     * 
+     * @return  bool|array    false on failure, array of active ports on success
+     */
+    function get_listening_ports()
+    {
+        $command = new Command();
+        $command->setCommand('netstat -anp4');
+        if(!$command->execute())
+            return false;
+        
+        $lines = explode("\n", $command->getOutput());
+        $listening_ports = [];
+        foreach($lines as $line) 
+        {
+            $line = preg_replace('/\s\s+/', ' ', $line);
+            $line = explode(' ', $line);
+            if($line[5] == 'LISTEN')
+            {
+                $listening_ports[] = explode(':', $line[3])[1];
+            }
+        }
+
+        return $listening_ports;
     }
 
 
