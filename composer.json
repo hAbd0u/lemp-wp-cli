@@ -1,0 +1,6 @@
+{
+    "require": {
+        "symfony/console": "^5.2",
+        "mikehaertl/php-shellcommand": "^1.6"
+    }
+}
