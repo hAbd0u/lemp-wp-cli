@@ -282,6 +282,25 @@
 
 
     /**
+     * Get an available port
+     * 
+     * @return  integer        0 failure, > 10000 on success
+     */
+    function reserve_port(array $current_ports)
+    {
+        $port = 0;
+        do
+        {
+            $port = rand(10000, 65353);
+        }
+        while(in_array($port, $current_ports));
+
+        return ($port > 10000) ? $port : false;
+    }
+
+
+
+    /**
      * DockerComposeClient
      */
     class DockerComposeClient 
