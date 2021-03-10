@@ -8,7 +8,7 @@
     * file that was distributed with this source code.
     */
 
-    require_once 'vendor/autoload.php';
+    require_once __DIR__ . 'vendor/autoload.php';
 
     use mikehaertl\shellcommand\Command;
 
@@ -250,4 +250,318 @@
         return false;
     }
 
+
+
+    /**
+     * DockerComposeClient
+     */
+    class DockerComposeClient 
+    {
+        const COMPOSE_UP        = 0;
+        const COMPOSE_BUILD     = 1;
+        const COMPOSE_START     = 2;
+        const COMPOSE_RESTART   = 3;
+        const COMPOSE_STOP      = 4;
+        const COMPOSE_REMOVE    = 5;
+        const COMPOSE_KILL      = 6;
+        const COMPOSE_LIST      = 7;
+        const COMPOSE_PS        = 8;
+        const COMPOSE_IP        = 9;
+        const COMPOSE_EXEC      = 10;
+
+        private $last_command = 0;
+        private $execute_command = false;
+        private $composer_file = '';
+        private $site = '';
+        private $command;
+
+        /**
+         * Constructor
+         * 
+         * @param   string      Site name of container services
+         * @param   string      (optional) Full path of Dockercompose file
+         * @throws  ComposerFileNotFoundException if the passed file does not exist
+         */
+        public function __construct($site, $composer_file = '')
+        {
+            if(!empty($composer_file) && file_exists($composer_file))
+                $this->composer_file = $composer_file;
+            else if(!empty($composer_file) && !file_exists($composer_file))
+                throw new ComposeFileNotFoundException();
+
+            $this->site = $site;
+            $this->command = new Command(['command' => 'docker-compose', 'escapeArgs' => false]);
+        }
+
+
+        /**
+         * Set the Dockercompose file
+         * 
+         * @param   string      Dockercompose file
+         * @throws  ComposerFileNotFoundException if the passed file does not exist
+         */
+        public function setFile($composer_file)
+        {
+            if(file_exists($composer_file))
+                $this->composer_file = $composer_file;
+            else
+                throw new ComposeFileNotFoundException();
+        }
+
+
+        /**
+         * Get the Dockercompose file
+         * 
+         */
+        public function getFile()
+        {
+            return $this->composer_file;
+        }
+
+
+        /**
+         * Build if the images not exist and starts the services that defined in Dockercompose
+         * 
+         * @return  array
+         */
+        public function up()
+        {
+            $this->command->addArg('-f', $this->getFile());
+            $this->command->addArg('up -d');
+
+            $this->execute_command = $this->command->getExecCommand();
+            $this->last_command = DockerComposeClient::COMPOSE_UP;
+            return $this->execute($this->command);
+        }
+
+
+        /**
+         * Starts the services that defined in Dockercompose
+         * 
+         * @return  array
+         */
+        public function start()
+        {
+            $this->command->addArg('-f', $this->getFile());
+            $this->command->addArg('start');
+
+            $this->execute_command = $this->command->getExecCommand();
+            $this->last_command = DockerComposeClient::COMPOSE_START;
+            return $this->execute($this->command);
+        }
+
+
+        /**
+         * Stops the services that defined in Dockercompose
+         * 
+         * @return  array
+         */
+        public function stop()
+        {
+            $this->command->addArg('-f', $this->getFile());
+            $this->command->addArg('stop');
+
+            $this->execute_command = $this->command->getExecCommand();
+            $this->last_command = DockerComposeClient::COMPOSE_STOP;
+            return $this->execute($this->command);
+        }
+
+
+        /**
+         * Stops the services that defined in Dockercompose and delete the images
+         * 
+         * @return  array
+         */
+        public function remove()
+        {
+            $this->command->addArg('-f', $this->getFile());
+            $this->command->addArg('down -v');
+
+            $this->execute_command = $this->command->getExecCommand();
+            $this->last_command = DockerComposeClient::COMPOSE_REMOVE;
+            return $this->execute($this->command);
+        }
+
+
+        /**
+         * Execute a docker-compose command
+         * 
+         * @return  array
+         */
+        protected function execute($command)
+        {
+            $command->execute();
+            return [
+                'output' => $command->getExecuted() ? $command->getStdErr() : $command->getOutput(),
+                'code' => $command->getExitCode()
+            ];
+        }
+
+
+        /**
+         * Get the last command executed
+         * 
+         * @return  array
+         */
+        public function getExecuteCommand()
+        {
+            return $this->execute_command;
+        }
+
+
+        /**
+         * Show full information about the last command executed
+         * 
+         * @return  array
+         */
+        public function debug()
+        {
+            return [
+                'Error' => $this->command->getError(),
+                'StdErr' => $this->command->getStdErr(),
+                'ExitCode' => $this->command->getExitCode(),
+                'Executed' => $this->command->getExecuted(),
+            ];
+        }
+
+
+        /**
+         * Parse the output of docker-compose command
+         * 
+         * @return  array
+         */
+        public function parse($result)
+        {
+            switch($this->last_command)
+            {
+                case DockerComposeClient::COMPOSE_UP:
+                    if ($result['code'] === 0)
+                        return $this->parse_up_logs($result['output'], $this->site);
+                    else
+                        return $result['output'];
+                break;
+                case DockerComposeClient::COMPOSE_START:
+                    if ($result['code'] === 0)
+                        return $this->parse_start_logs($result['output'], $this->site);
+                    else
+                        return $result['output'];
+                break;
+                case DockerComposeClient::COMPOSE_STOP:
+                    if ($result['code'] === 0)
+                        return $this->parse_stop_logs($result['output'], $this->site);
+                    else
+                        return $result['output'];
+                break;
+                case DockerComposeClient::COMPOSE_REMOVE:
+                    if ($result['code'] === 0)
+                        return $this->parse_remove_logs($result['output'], $this->site);
+                    else
+                        return $result['output'];
+                break;
+                default:
+                    return [];
+                break;
+            }
+        }
+
+
+        /**
+         * Parse the output of docker-compose up command
+         * 
+         * @return  array
+         */
+        protected function parse_up_logs($logs, $site)
+        {
+            $services = [];
+            $lines = explode("\n", $logs);
+            foreach($lines as $line) {
+                if(strstr($line, 'Creating ' . $site) != false || strstr($line, 'Recreating ' . $site) != false 
+                    || strstr($line, 'Starting ' . $site) != false) 
+                {
+                    $line = explode(' ', $line);
+                    $last = array_pop($line);
+                    $services[$line[1]] = trim($last);
+                }
+                else if(preg_match('/' . $site . '[\-a-zA-Z]* is up-to-date/', $line))
+                {
+                    $line = explode(' ', $line);
+                    $last = array_pop($line);
+                    $services[$line[0]] = trim($last);
+                }
+            }
+        
+            return $services;
+        }
+
+
+        /**
+         * Parse the output of docker-compose start command
+         * 
+         * @return  array
+         */
+        protected function parse_start_logs($logs, $site)
+        {
+            $services = [];
+            $lines = explode("\n", $logs);
+            foreach($lines as $line) {
+                if(strstr($line, 'Starting ') != false) {
+                    $line = explode(' ', $line);
+                    $last = array_pop($line);
+                    $services[$line[1]] = trim($last);
+                }
+            }
+
+            return $services;
+        }
+
+
+        /**
+         * Parse the output of docker-compose stop command
+         * 
+         * @return  array
+         */
+        protected function parse_stop_logs($logs, $site)
+        {
+            $services = [];
+            $lines = explode("\n", $logs);
+            foreach($lines as $line) {
+                if(strstr($line, 'Stopping ') != false) {
+                    $line = explode(' ', $line);
+                    $last = array_pop($line);
+                    $services[$line[1]] = trim($last);
+                }
+            }
+
+            return $services;
+        }
+
+
+        /**
+         * Parse the output of docker-compose remove command
+         * 
+         * @return  array
+         */
+        protected function parse_remove_logs($logs, $site)
+        {
+            $services = [];
+            $lines = explode("\n", $logs);
+            foreach($lines as $line) {
+                if(strstr($line, 'Removing ' . $site) != false) {
+                    $line = explode(' ', $line);
+                    $services[$line[1]] = array_pop($line);
+                }
+            }
+        
+            return $services;
+        }
+    }
+
+
+    class ComposeFileNotFoundException extends Exception
+    {
+        public function __construct(Exception $previous = null)
+        {
+            parent::__construct(sprintf('Docker compose file not found'), 404, $previous);
+        }
+    }
  ?>
