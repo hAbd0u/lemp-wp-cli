@@ -310,8 +310,8 @@
     {
         foreach (scandir($src) as $file) 
         {
-            $src_file = rtrim($src, '/') . '/' . $file;
-            $dest_file = rtrim($dest, '/') . '/' . $file;
+            $src_file = rtrim($src, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $file;
+            $dest_file = rtrim($dest, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $file;
             if (!is_readable($src_file))
                 continue;
 
