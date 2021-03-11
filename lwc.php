@@ -301,6 +301,38 @@
 
 
     /**
+     * Copy an entire directory or file to a specified destination
+     * 
+     * @param   string      source file or dir
+     * @param   string      destination file or dir
+     */
+    function xcopy($src, $dest)
+    {
+        foreach (scandir($src) as $file) 
+        {
+            $src_file = rtrim($src, '/') . '/' . $file;
+            $dest_file = rtrim($dest, '/') . '/' . $file;
+            if (!is_readable($src_file))
+                continue;
+
+            if ($file != '.' && $file != '..') 
+            {
+                if (is_dir($src_file)) 
+                {
+                    if (!file_exists($dest_file))
+                        mkdir($dest_file);
+                        
+                    xcopy($src_file, $dest_file);
+                } 
+                else
+                    copy($src_file, $dest_file);
+            }
+        }
+    }
+
+
+
+    /**
      * DockerComposeClient
      */
     class DockerComposeClient 
