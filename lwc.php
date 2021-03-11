@@ -333,6 +333,29 @@
 
 
     /**
+     * Recursively delete a file or directory.  Use with care!
+     *
+     * @param string $path
+     */
+    function recursive_remove($path) 
+    {
+        if (is_dir($path)) 
+        {
+            foreach (scandir($path) as $entry) 
+            {
+                if (!in_array($entry, ['.', '..']))
+                    recursive_remove($path . DIRECTORY_SEPARATOR . $entry);
+            }
+
+            rmdir($path);
+        } 
+        else
+            unlink($path);
+    }
+
+
+
+    /**
      * DockerComposeClient
      */
     class DockerComposeClient 
