@@ -308,6 +308,9 @@
      */
     function xcopy($src, $dest)
     {
+        if (!file_exists($dest))
+            mkdir($dest);
+
         foreach (scandir($src) as $file) 
         {
             $src_file = rtrim($src, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $file;
