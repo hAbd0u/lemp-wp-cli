@@ -31,10 +31,10 @@ services:
         ports:
             - '${MARIADB_PORT}:3306'
         environment:
-            MYSQL_USER: wp-user
-            MYSQL_PASSWORD: wp-pass
-            MYSQL_DATABASE: wp-db
-            MYSQL_ROOT_PASSWORD: test
+            MYSQL_USER: '${WP_USER}'
+            MYSQL_PASSWORD: '${WP_PASSWORD}'
+            MYSQL_DATABASE: '${WP_DATABASE}'
+            MYSQL_ROOT_PASSWORD: '${WP_ROOT_PASSWORD}'
         volumes:
             - /${CONTAINER_SITES_DIR}/${CONTAINER_SITE}/mariadb:/var/lib/mysql
             - /${CONTAINER_SITES_DIR}/${CONTAINER_SITE}/docker/mariadb/my.cnf:/etc/mysql/conf.d/my.cnf
