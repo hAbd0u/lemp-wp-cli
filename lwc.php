@@ -419,6 +419,53 @@
 
 
     /**
+     * Add a host to /etc/hosts
+     * 
+     * @param bool|int    0 if the $ip:$host already exist, true on addition success, false if the file doesn't exist or not writable
+     */
+    function add_host($url, $ip)
+    {
+        $hosts_path = '/etc/hosts';
+        if(is_readable($hosts_path) && is_writable($hosts_path))
+        {
+            $hosts = file_get_contents($hosts_path);
+            if(preg_match('/' . $url . '/', $hosts) && preg_match('/' . $ip . '/', $hosts))
+                return 0;
+
+            $hosts .= "\n" . $ip . "\t\t" . $url . "\n";
+            file_put_contents($hosts_path, $hosts);
+            return true;
+        }
+
+        return false;
+    }
+
+
+
+    /**
+     * Generate a random string
+     * 
+     * @param int   $length     How long the returned salt
+     * @return      string      The returned salt
+     */
+    function random_salt($length) 
+    {
+        if($length < 8)
+            $length = 8;
+        
+        $salt = '';
+        $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+=-}{[}]\|;:<>?/ ';
+        $max = mb_strlen($keyspace, '8bit') - 1;
+        for ($i = 0; $i < $length; ++$i) {
+            $salt .= $keyspace[random_int(0, $max)];
+        }
+        
+        return $salt;
+    }
+
+
+
+    /**
      * DockerComposeClient
      */
     class DockerComposeClient 
