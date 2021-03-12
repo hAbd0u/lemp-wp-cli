@@ -72,9 +72,10 @@
     /**
      * Install docker and docker-compose on Ubuntu system
      * 
+     * @return  string      A system account user in order to run docker with no root privileges.
      * @return  integer     1 on success, 0 on failure
      */
-    function install_docker_dcompose()
+    function install_docker_dcompose($user_account)
     {
         echo 'Updating the package lists' . PHP_EOL;
         $command = new Command();
@@ -146,6 +147,7 @@
                                 $command->setCommand( 'sudo chmod +x docker-compose && sudo mv docker-compose /usr/local/bin/' );
                                 if ( $command->execute() ) {
                                     echo 'docker and docker-composer installed successfully!' . PHP_EOL;
+                                    $command->setCommand( 'sudo usermod -aG ' . $user_account );
                                     return 1;
                                 } else {
                                     echo 'Fail to set docker-composer execute permission' . PHP_EOL; 
@@ -208,6 +210,27 @@
 
         $command->setCommand('sudo rm -f docker-compose && sudo rm -f /usr/local/bin/docker-compose');
         $command->execute();
+    }
+
+
+
+    /**
+     * Check whether a user account exist or not
+     * 
+     * @return  string      A system account user in order to run docker with no root privileges.
+     * @return  bool        true if it does exist, false otherwise, prints a message if there is an error
+     */
+    function is_user_exist($user_account)
+    {
+        $command = new Command();
+        $command->setCommand('id ' . $user_account);
+        $result = $command->execute();
+        if ($result && strstr($command->getOutput(), $user_account) !== false)
+            return true;
+
+        if(strstr($command->getError(), 'no such user') !== false
+            || strstr($command->getOutput(), 'no such user') !== false)
+            return false;
     }
 
 
