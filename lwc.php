@@ -361,7 +361,7 @@
     /**
      * Recursively delete a file or directory.  Use with care!
      *
-     * @param string $path
+     * @param   string $path
      */
     function recursive_remove($path) 
     {
@@ -384,10 +384,10 @@
     /**
      * Recursively set the owner of a path to a user
      * 
-     * @param string    $path      Full path of directory
-     * @param string    $group     Group owner
-     * @param string    $user      User owner
-     * @param string    $mode      access mode
+     * @param   string    $path      Full path of directory
+     * @param   string    $group     Group owner
+     * @param   string    $user      User owner
+     * @param   string    $mode      access mode
      */
     function rchown($path, $group, $user, $mode)
     {
@@ -421,7 +421,7 @@
     /**
      * Add a host to /etc/hosts
      * 
-     * @param bool|int    0 if the $ip:$host already exist, true on addition success, false if the file doesn't exist or not writable
+     * @param   bool|int    0 if the $ip:$host already exist, true on addition success, false if the file doesn't exist or not writable
      */
     function add_host($url, $ip)
     {
@@ -445,16 +445,20 @@
     /**
      * Generate a random string
      * 
-     * @param int   $length     How long the returned salt
-     * @return      string      The returned salt
+     * @param   int     $length     How long the returned salt
+     * @param   array   $exclude    List of characters to exclude from the generated salt.
+     * @return  string  The returned salt
      */
-    function random_salt($length) 
+    function random_salt($length, $exclude = [])
     {
         if($length < 8)
             $length = 8;
         
         $salt = '';
-        $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+=-}{[}]\|;:<>?/ ';
+        $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+=-}{[}]\|;:<>?/"\'\\ ';
+        if(!empty($exclude))
+            $keyspace = str_replace($exclude, '', $keyspace);
+
         $max = mb_strlen($keyspace, '8bit') - 1;
         for ($i = 0; $i < $length; ++$i) {
             $salt .= $keyspace[random_int(0, $max)];
