@@ -433,7 +433,7 @@
         public function up()
         {
             $this->command->addArg('-f', $this->getFile());
-            $this->command->addArg('up -d');
+            $this->command->addArg('up -d --force-recreate');
 
             $this->execute_command = $this->command->getExecCommand();
             $this->last_command = DockerComposeClient::COMPOSE_UP;
