@@ -382,6 +382,39 @@
 
 
     /**
+     * Recursively set the owner of a path to a user
+     * 
+     * @param string    $path      Full path of directory
+     * @param string    $group     Group owner
+     * @param string    $user      User owner
+     * @param string    $mode      access mode
+     */
+    function rchown($path, $group, $user, $mode)
+    {
+        $dir = rtrim($path, '/');
+        if ($items = glob($dir . '/*')) 
+        {
+            foreach ($items as $item) 
+            {
+                if (is_dir($item)) 
+                {
+                    (!empty($mode)) ? chmod($item, $mode) : '';
+                    (!empty($user)) ? chown($item, $user) : '';
+                    (!empty($group)) ? chgrp($item, $group) : '';
+                    rchown($item, $group, $user, $mode);
+                } else 
+                {
+                    (!empty($mode)) ? chmod($item, $mode) : '';
+                    (!empty($user)) ? chown($item, $user) : '';
+                    (!empty($group)) ? chgrp($item, $group) : '';
+                }
+            }
+        }
+    }
+
+
+
+    /**
      * DockerComposeClient
      */
     class DockerComposeClient 
