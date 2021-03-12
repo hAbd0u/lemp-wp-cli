@@ -1,7 +1,8 @@
 FROM nginx
 MAINTAINER Ilyes Abdelrazak <ia.beladel@gmail.com>
 
-RUN useradd -u 1000 -ms /bin/bash -g nginx nginx
+# Add user 
+#RUN useradd -u 1000 -ms /bin/bash -g nginx nginx
 
 RUN chown -R nginx:nginx /usr/share/nginx/html 
 RUN chmod -R 755 /usr/share/nginx/html
