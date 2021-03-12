@@ -392,7 +392,7 @@
     function rchown($path, $group, $user, $mode)
     {
         $dir = rtrim($path, '/');
-        if ($items = glob($dir . '/*')) 
+        if($items = glob($dir . '/*')) 
         {
             foreach ($items as $item) 
             {
@@ -410,6 +410,10 @@
                 }
             }
         }
+
+        (!empty($mode)) ? chmod($path, $mode) : '';
+        (!empty($user)) ? chown($path, $user) : '';
+        (!empty($group)) ? chgrp($path, $group) : '';
     }
 
 
