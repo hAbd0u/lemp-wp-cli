@@ -1,8 +1,6 @@
 FROM nginx
 MAINTAINER Ilyes Abdelrazak <ia.beladel@gmail.com>
 
-# Add user 
-RUN groupadd -g 1000 nginx
 RUN useradd -u 1000 -ms /bin/bash -g nginx nginx
 
 RUN chown -R nginx:nginx /usr/share/nginx/html 
