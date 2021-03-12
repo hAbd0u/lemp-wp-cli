@@ -37,4 +37,4 @@ services:
             MYSQL_ROOT_PASSWORD: test
         volumes:
             - /${CONTAINER_SITES_DIR}/${CONTAINER_SITE}/mariadb:/var/lib/mysql
-            - /${CONTAINER_SITES_DIR}/${CONTAINER_SITE}/my.cnf:/etc/mysql/conf.d/my.cnf
+            - /${CONTAINER_SITES_DIR}/${CONTAINER_SITE}/docker/mariadb/my.cnf:/etc/mysql/conf.d/my.cnf
