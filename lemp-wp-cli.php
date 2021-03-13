@@ -61,7 +61,7 @@
         {      
             if (!extension_loaded('openssl') || !extension_loaded('curl') || !extension_loaded('zip')) 
             {
-                $output->writeln('One of the following extensions is not installed/ loaded, the app needs them to function properly.');
+                $output->writeln('One of the following extensions `openssl curl zip` is not installed/ loaded, the app needs them to function properly.');
                 $output->writeln('Existing the application!');
                 exit();
             }
