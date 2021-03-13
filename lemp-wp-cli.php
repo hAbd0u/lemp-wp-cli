@@ -59,6 +59,13 @@
 
         protected function execute(InputInterface $input, OutputInterface $output)
         {      
+            if (!extension_loaded('openssl') || !extension_loaded('curl') || !extension_loaded('zip')) 
+            {
+                $output->writeln('One of the following extensions is not installed/ loaded, the app needs them to function properly.');
+                $output->writeln('Existing the application!');
+                exit();
+            }
+
             if(!file_exists(CONTAINER_SITES_DIR))
             {    if(!mkdir(CONTAINER_SITES_DIR, 0775))
                 {
