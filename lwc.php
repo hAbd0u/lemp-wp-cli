@@ -26,14 +26,13 @@
         echo "Retrieving http header... " . PHP_EOL;
         $header = get_headers($remote_file);
         //echo json_encode($header, JSON_PRETTY_PRINT);
-        $file_length = array_key_last(preg_grep('/\bLength\b/i', $header));
-        $file_length = intval(explode(' ', $header[ $file_length ])[1]);
-        $file_name = array_key_last(preg_grep('/\bContent-Disposition\b/i', $header));
-        $file_name = (empty($save_name)) ? explode('filename=', $header[ $file_name ])[1] : $save_name;
         $http = substr($header[0], 9, 3);
         if($http == 200 || $http == 302)
         {
-            echo PHP_EOL;
+            $file_length = array_key_last(preg_grep('/\bLength\b/i', $header));
+            $file_length = intval(explode(' ', $header[ $file_length ])[1]);
+            $file_name = array_key_last(preg_grep('/\bContent-Disposition\b/i', $header));
+            $file_name = (empty($save_name)) ? explode('filename=', $header[ $file_name ])[1] : $save_name;
             echo " Target size: " . floor($file_length / (1000 * 1024)) . " Mo || " . floor($file_length / 1000) . " Kb";
             $t = explode("/", $remote_file);
             $remote = fopen($remote_file, 'r');
