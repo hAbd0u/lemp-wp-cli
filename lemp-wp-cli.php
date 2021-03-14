@@ -442,6 +442,84 @@
         }
     }
 
+
+    class DestroyCommand extends  Symfony\Component\Console\Command\Command
+    {
+        protected static $defaultName = 'Destroy';
+        protected $user_account;
+
+        protected function configure()
+        {
+            $this->setName('Destroy')
+                    ->setDescription('Destroy a LEMP that already lunched exist.')
+                    ->setHelp("Destroy a LEMP after it has been lunched.\nExample:\n\tphp " . basename(__FILE__) ." destroy --site mysite.com")
+                    ->addOption('site', null, InputOption::VALUE_REQUIRED, 'Set WordPress site name');
+        }
+
+        protected function interact(InputInterface $input, OutputInterface $output)
+        { 
+            if($input->getOption('site') === NULL)
+            {
+                $output->writeln('Please pass all options --site and --user.');
+                exit();
+            }
+
+            if(!is_valid_url($input->getOption('site')))
+            {
+                $output->writeln('Invalid url format passed!');
+                exit();
+            }
+        }
+    
+        protected function execute(InputInterface $input, OutputInterface $output)
+        {
+            $site_name = rtrim($input->getOption('site'), '/');
+            // Check if the passed site already exist
+            $site_compose = rtrim(CONTAINER_SITES_DIR, '/') . '/' . $site_name . '/docker/docker-compose.yml';
+            if(!file_exists($site_compose))
+            {
+                $output->writeln(sprintf('A container site of %s doesn\'t exist, may be it is already deleted.', $site_name));
+                $output->writeln('Existing the application!');
+                exit();
+            }
+
+            // Stop the container
+            $docker_manager = new DockerComposeClient($site_name, $site_compose);
+            $output->writeln('');
+            $output->writeln(sprintf('Destroy the services, this may take few seconds.'));
+            $result = $docker_manager->remove();
+            if(!empty($result['output']))
+            {
+                $logs = $docker_manager->parse($result);
+                if(is_array($logs))
+                {
+                    foreach($logs as $service => $status)
+                    {
+                        $service = explode('-', $service);
+                        $service = array_pop($service);
+                        $output->writeln(sprintf("Destroying the service: %s\t\t%s", $service, $status));
+                    }
+                    
+                    return Command::SUCCESS;
+                }
+                else
+                {
+                    $output->writeln('Some thing wrong happened, bellow is the latest stack trace');
+                    print_r($docker_manager->parse($result));
+                    print_r($docker_manager->debug());
+                    return Command::FAILURE;
+                }
+            }
+            else
+            {
+                $output->writeln(sprintf('Exiting the app, failed to stop container site of %s.', $site_name));
+                print_r($result);
+                print_r($docker_manager->debug());
+                return Command::FAILURE;
+            }
+        }
+    }
+
  
     class LWCApp extends Application
     {
@@ -460,5 +538,6 @@
     $app->add(new BootstrapCommand());
     $app->add(new StartCommand());
     $app->add(new StopCommand());
+    $app->add(new DestroyCommand());
     $app->run();
 ?>
