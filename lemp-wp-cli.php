@@ -188,6 +188,7 @@
 
             // Start the container
             $docker_manager = new DockerComposeClient($site_name, $site_dir . '/docker/docker-compose.yml');
+            $output->writeln('');
             $output->writeln(sprintf('Starting up the services, this may take few seconds or minutes if the images didn\'t downloaded before.'));
             $result = $docker_manager->up();
             if(!empty($result['output']))
