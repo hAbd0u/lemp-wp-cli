@@ -144,13 +144,15 @@
             }
 
             // Download the latest wordpress and extract it to $site_dir
-            /*$result = download_file_progress('https://wordpress.org/wordpress-2.7.1.zip', 'wp-latest.zip');
+            $output->writeln('Downloading WordPress...');
+            //$result = download_file_progress('https://wordpress.org/wordpress-2.7.1.zip', 'wp-latest.zip');
+            $result = download_file_progress(WORDPRESS_DOWNLOAD_URL, 'wp-latest.zip');
             if($result == 0)
             {
                 $output->writeln('Exiting the app, failed to download wordpress.');
                 recursive_remove($site_dir);
                 exit();
-            }*/
+            }
 
             $zip = new ZipArchive;
             if ($zip->open('wp-latest.zip') === TRUE) 
