@@ -289,7 +289,7 @@
 
     class StartCommand extends  Symfony\Component\Console\Command\Command
     {
-        protected static $defaultName = 'bootstrap';
+        protected static $defaultName = 'start';
         protected $user_account;
 
         protected function configure()
@@ -367,7 +367,7 @@
 
     class StopCommand extends  Symfony\Component\Console\Command\Command
     {
-        protected static $defaultName = 'bootstrap';
+        protected static $defaultName = 'stop';
         protected $user_account;
 
         protected function configure()
@@ -445,7 +445,7 @@
 
     class DestroyCommand extends  Symfony\Component\Console\Command\Command
     {
-        protected static $defaultName = 'Destroy';
+        protected static $defaultName = 'destroy';
         protected $user_account;
 
         protected function configure()
