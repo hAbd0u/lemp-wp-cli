@@ -167,7 +167,10 @@
                                 if($command->execute()) 
                                 {
                                     echo 'docker and docker-composer installed successfully!' . PHP_EOL;
-                                    $command->setCommand( 'sudo usermod -aG ' . $user_account );
+                                    $command->setCommand('sudo usermod -aG docker ' . $user_account);
+                                    $command->execute();
+                                    //$command->setCommand( 'su - ' . $user_account );
+                                    //$command->execute();
                                     return 1;
                                 } 
                                 else 
