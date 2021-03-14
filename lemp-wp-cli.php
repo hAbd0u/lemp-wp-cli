@@ -23,7 +23,7 @@
         {
             $this->setName('bootstrap')
                     ->setDescription('A CLI to bootstrap a full LEMP with latest WordPress installation.')
-                    ->setHelp("Launch a full LEMP containers with a latest Wordpress installation.\nExample:\n\tphp " . basename(__FILE__) ." bootstrap --site mysite.com")
+                    ->setHelp("Launch a full LEMP containers with a latest Wordpress installation.\nExample:\n\tphp " . basename(__FILE__) ." bootstrap --site mysite.com --user SYS_ACCOUNT")
                     ->addOption('site', null, InputOption::VALUE_REQUIRED, 'Set WordPress site name')
                     ->addOption('user', null, InputOption::VALUE_REQUIRED, 'Set no root user system account');
         }
