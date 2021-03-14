@@ -14,7 +14,7 @@
     define('WORDPRESS_DOWNLOAD_URL', 'https://wordpress.org/latest.zip');
 
 
-    class LEMPCommand extends  Symfony\Component\Console\Command\Command
+    class BootstrapCommand extends  Symfony\Component\Console\Command\Command
     {
         protected static $defaultName = 'bootstrap';
         protected $user_account;
@@ -300,6 +300,6 @@
 
     
     $app = new LWCApp('LEMP WP installer', '1.0.0');
-    $app->add(new LEMPCommand());
+    $app->add(new BootstrapCommand());
     $app->run();
 ?>
