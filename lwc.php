@@ -76,83 +76,108 @@
      */
     function install_docker_dcompose($user_account)
     {
-        echo 'Updating the package lists' . PHP_EOL;
+        echo 'Installing docker repository. ' . PHP_EOL;
+        echo '=====================================================' . PHP_EOL;
         $command = new Command();
-        $command->setCommand( 'sudo apt-get update' );
-        if ($command->execute()) {
+        $command->setCommand('sudo rm -f /usr/share/keyrings/docker-archive-keyring.gpg');
+        $command->execute();
+        
+        $command->setCommand('sudo rm -f /usr/share/keyrings/docker-archive-keyring.gpg && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg');
+		$command->execute();
+        
+		$command->setCommand('echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null');
+		$command->execute();
+
+        echo 'Updating the package lists' . PHP_EOL;
+        echo '=====================================================' . PHP_EOL;
+        $command->setCommand('sudo apt-get update');
+        if($command->execute()) 
+        {
             $result = $command->getOutput();
-            echo $result . PHP_EOL;
-            echo '=====================================================' . PHP_EOL;
-            if( strstr( $result, 'Reading package lists...' ) === false )
+            if(strstr($result, 'Reading package lists...' ) === false )
             {
                 echo 'Fail to update the package lists' . PHP_EOL; 
                 echo 'Error: ' . $command->getError() . PHP_EOL . 'Exit code: ' . $command->getExitCode() . PHP_EOL;
                 echo 'Exiting the script from line: ' . __LINE__ . PHP_EOL;
                 return 0;
             }
+                    
+            echo $result . PHP_EOL;
+            echo '=====================================================' . PHP_EOL;
+
+            // The issue of keys
+        	if(preg_match_all('/is not available: NO_PUBKEY [0-9A-F]+/', $result, $matches) !== false)
+			{
+				$keys = array_unique($matches[0]);
+				$keys = str_replace('is not available: NO_PUBKEY ', '', implode(' ', $keys));
+				$command->setCommand('sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys ' . $keys);
+				$command->execute();
+				$command->setCommand( 'sudo apt-get update' );
+		        if($command->execute()) 
+		        {
+		            $result = $command->getOutput();
+		            if( strstr( $result, 'Reading package lists...' ) === false )
+                	{
+		                echo 'Fail to update the package lists' . PHP_EOL; 
+		                echo 'Error: ' . $command->getError() . PHP_EOL . 'Exit code: ' . $command->getExitCode() . PHP_EOL;
+
+		                echo 'Cleaning up any installed packages' . PHP_EOL;
+		                $command->setCommand( 'sudo rm -f /usr/share/keyrings/docker-archive-keyring.gpg' );
+		                $command->execute();
+
+		                echo 'Exiting the script from line: ' . __LINE__ . PHP_EOL;
+		                return 0;
+                	}
+
+                    echo 'Updating the package lists' . PHP_EOL;
+                    echo '=====================================================' . PHP_EOL;
+		            echo $result . PHP_EOL;
+		            echo '=====================================================' . PHP_EOL;
+		        }
+			}
             
             echo 'Installing necessary packages for docker and docker-composer' . PHP_EOL;
             $command->setCommand( 'sudo apt-get install -y apt-transport-https ca-certificates curl gnupg' );
-            if ( $command->execute() ) {
+            if($command->execute()) 
+            {
                 $result = $command->getOutput();
-                echo $result . PHP_EOL;
-                echo '=====================================================' . PHP_EOL;
                 if( strstr( $result, 'Processing triggers for man-db' ) !== false 
                     || preg_match( '/[0-9]+ upgraded, [0-9]+ newly installed, [0-9]+ to remove/', $result ) )
                 {
-            		$command->setCommand( 'sudo rm -f /usr/share/keyrings/docker-archive-keyring.gpg && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg' );
-            		$command->execute();
-            		$command->setCommand( 'echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null' );
-            		$command->execute();
-                    $result = $command->getOutput();
-                    echo 'Installing docker repository. ' . $result . PHP_EOL;
-                    echo '=====================================================' . PHP_EOL;
-                    echo 'Updating the package lists' . PHP_EOL;
-                    echo '=====================================================' . PHP_EOL;
-                    $command->setCommand( 'sudo apt-get update' );
-                    if ( $command->execute() ) {
-                        $result = $command->getOutput();
-                        echo $result . PHP_EOL;
-                        echo '=====================================================' . PHP_EOL;
-                        if( strstr( $result, 'Reading package lists...' ) === false )
-                        {
-                            echo 'Fail to update the package lists' . PHP_EOL; 
-                            echo 'Error: ' . $command->getError() . PHP_EOL . 'Exit code: ' . $command->getExitCode() . PHP_EOL;
-
-                            echo 'Cleaning up any installed packages' . PHP_EOL;
-                            $command->setCommand( 'sudo rm -f /usr/share/keyrings/docker-archive-keyring.gpg' );
-                            $command->execute();
-
-                            echo 'Exiting the script from line: ' . __LINE__ . PHP_EOL;
-                            return 0;
-                        }
-                    }    
-                        
+                    echo $result . PHP_EOL;
+                    echo '=====================================================' . PHP_EOL; 
+                    
                     echo 'Installing docker and docker-composer' . PHP_EOL;
                     $command->setCommand( 'sudo apt-get install -y docker-ce docker-ce-cli containerd.io' );
-                    if ( $command->execute() ) {
+                    if($command->execute()) 
+                    {
                         $result = $command->getOutput();
                         if( strstr( $result, 'Processing triggers for man-db' ) !== false 
                             || preg_match( '/[0-9]+ upgraded, [0-9]+ newly installed, [0-9]+ to remove/', $result ) )
                         {
                             echo $result . PHP_EOL;
                             echo '=====================================================' . PHP_EOL;
-
-                            $command->setCommand( 'echo "https://github.com/docker/compose/releases/download/1.28.5/docker-compose-$(uname -s)-$(uname -m)"' );
+                            $command->setCommand( 'echo "https://github.com/docker/compose/releases/download/1.28.5/docker-compose-$(uname -s)-$(uname -m)" > dc-url' );
                             $command->execute();
-                            $download_link = $command->getOutput();
+                            $download_link = trim(file_get_contents('dc-url'));
                             $result = download_file_progress($download_link, 'docker-compose');
-                            if($result == 1) {
+                            if($result == 1) 
+                            {
                                 $command->setCommand( 'sudo chmod +x docker-compose && sudo mv docker-compose /usr/local/bin/' );
-                                if ( $command->execute() ) {
+                                if($command->execute()) 
+                                {
                                     echo 'docker and docker-composer installed successfully!' . PHP_EOL;
                                     $command->setCommand( 'sudo usermod -aG ' . $user_account );
                                     return 1;
-                                } else {
+                                } 
+                                else 
+                                {
                                     echo 'Fail to set docker-composer execute permission' . PHP_EOL; 
                                     echo $command->getError() . PHP_EOL . 'Exit code: ' . $command->getExitCode() . PHP_EOL;
                                 }
-                            } else {
+                            } 
+                            else 
+                            {
                                 echo 'Fail to download docker-composer' . PHP_EOL; 
                                 echo $command->getError() . PHP_EOL . 'Exit code: ' . $command->getExitCode() . PHP_EOL;
                                 uninstall_docker_dcompose();
@@ -160,17 +185,28 @@
                                 return 0;
                             }
                         }
-                    } else {
+                    } else 
+                    {
                         echo 'Fail to install docker and docker-composer' . PHP_EOL; 
                         echo 'Error: ' . $command->getError() . PHP_EOL . 'Exit code: ' . $command->getExitCode() . PHP_EOL;
                         echo 'Cleaning up any installed packages' . PHP_EOL;
                         uninstall_docker_dcompose();
                         echo 'TIP: Reboot the system and try again.' . PHP_EOL;
+                        echo 'Script stack trace' . PHP_EOL;
+                        print_r($command->getOutput());
+                        print_r($command->execute());
+                        print_r($command->getError());
+                        print_r($command->getStdErr());
+                        print_r($command->getExitCode());
+                        print_r($command->getExecuted());
+                        echo PHP_EOL;
                         echo 'Exiting the script from line: ' . __LINE__ . PHP_EOL;
                         return 0;
                     }
                 }
-            } else {
+            } 
+            else 
+            {
                 echo 'Fail to install necessary packages for  docker and docker-composer' . PHP_EOL; 
                 echo 'Error: ' . $command->getError() . PHP_EOL . 'Exit code: ' . $command->getExitCode() . PHP_EOL;
                 echo 'Exiting the script from line: ' . __LINE__ . PHP_EOL;
