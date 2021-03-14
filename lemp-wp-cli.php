@@ -106,11 +106,11 @@
             $template = str_replace('${CONTAINER_SITE}', $site_name, $template);
 
             $listening_ports = get_listening_ports();
-            //$http_port = reserve_port($listening_ports);
-            //$https_port = reserve_port($listening_ports);
+            //$http_port = (is_array($listening_ports)) ? reserve_port($listening_ports) : reserve_port([0]);
+            //$https_port = (is_array($listening_ports)) ? reserve_port($listening_ports) : reserve_port([0]);
             $http_port = 80;
             $https_port = 443;
-            $mariadb_port = reserve_port($listening_ports);
+            $mariadb_port = (is_array($listening_ports)) ? reserve_port($listening_ports) : reserve_port([0]);
 
             $template = str_replace('${HTTP_PORT}', $http_port, $template);
             $template = str_replace('${HTTPS_PORT}', $https_port, $template);
