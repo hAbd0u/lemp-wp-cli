@@ -91,10 +91,13 @@ For transparency into our release cycle and in striving to maintain backward com
 
 **What is this repo?**
 It is full LEMP with an installed WP lunched directly from the console.
+
 **Does all the services independent?**
 Yes, each service [nginx - phpfm - mariadb] run in its own container.
+
 **What is the version of the installed WordPress?**
 Of course it is the latest one, downloaded directly from [here](https://wordpress.org/latest.zip).
+
 **Can I change the WordPress version to be installed when lunching a LEMP?**
 Yes, you can do so by changing the defined const here:
 ```php
