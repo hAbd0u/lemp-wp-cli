@@ -90,21 +90,21 @@ For transparency into our release cycle and in striving to maintain backward com
 ## FAQ
 
 **What is this repo?**
-It is full LEMP with an installed WP lunched directly from the console.
+- It is full LEMP with an installed WP lunched directly from the console.
 
 **Does all the services independent?**
-Yes, each service [nginx - phpfm - mariadb] run in its own container.
+- Yes, each service [nginx - phpfm - mariadb] run in its own container.
 
 **What is the version of the installed WordPress?**
-Of course it is the latest one, downloaded directly from [here](https://wordpress.org/latest.zip).
+- Of course it is the latest one, downloaded directly from [here](https://wordpress.org/latest.zip).
 
 **Can I change the WordPress version to be installed when lunching a LEMP?**
-Yes, you can do so by changing the defined const here:
+- Yes, you can do so by changing the defined const here:
 ```php
 define('WORDPRESS_DOWNLOAD_URL', 'https://wordpress.org/latest.zip');
 ```
 **Where can I find the files of the lunched LEMP?**
-By default all LEMP files are saved under `/rt-sites/${SITE_NAME}`, but you can change the location of that by redefine it here:
+- By default all LEMP files are saved under `/rt-sites/${SITE_NAME}`, but you can change the location of that by redefine it here:
 ```php
 define('CONTAINER_SITES_DIR', '/rt-sites');
 ```
