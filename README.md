@@ -76,6 +76,8 @@ $mariadb_port = (is_array($listening_ports)) ? reserve_port($listening_ports) : 
 
 ## TODO 
 This is a list of features hopefully to implement in future.
+- [ ] List current running LEMPs.
+- [ ] Add the support to select ports dynamically.
 - [ ] Upgrade WordPress.
 - [ ] Install plugins.
 - [ ] Change WordPress site name.
